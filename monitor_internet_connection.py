@@ -136,7 +136,7 @@ def calc_time_diff(start, end):
 
 
 def signal_handler(signal_received, frame):
-    """ Capture Ctrl-C (or SIGINT) and exit the program gracefully. 
+    """ Capture Ctrl-C (or SIGINT) or SIGTERM and exit the program gracefully. 
 
     Input Params:
         signal_received (integer) is the signal number captured and received.
@@ -178,6 +178,7 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
 
     # Capture the Ctrl-C (or SIGINT) signal to permit the program to exit gracefully.
     signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     if enable_logfile:
         verify_write_access()

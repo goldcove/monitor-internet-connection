@@ -67,6 +67,7 @@ import os
 import signal
 import argparse
 import sys
+from pushover import Client
 
 # If enabled, the log file will be created in the current working folder.
 log_filename = "internet_monitor.log"
@@ -221,6 +222,7 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
                     now = datetime.datetime.now()
                     msg = "-----------Internet Connection still unavailable at : " + str(now).split(".")[0]
                     print(msg)
+                    POclient.send_message(msg, title="Network down")
                     if enable_logfile:
                         with open(file, 'a') as writer:
                             writer.write(msg + "\n")
@@ -236,6 +238,7 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
             # Display restoration message to console and record in log file.
             print(restore_msg)
             print(duration_msg)
+            POclient.send_message(restore_msg, title="Network restored")
             if enable_logfile:
                 with open(file, 'a') as writer:
                     writer.write(restore_msg + "\n")
@@ -245,6 +248,8 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
 
 if __name__ == "__main__":
     args = parse_args()
+    #Pushover
+    POclient = Client("<user-key>", api_token="<api-token>")
 
     enable_logfile = not args.disable_logfile
     monitor_inet_connection(enable_logfile, args.polling_freq)

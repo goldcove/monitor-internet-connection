@@ -108,11 +108,17 @@ def is_internet_alive(host="8.8.8.8", port=53, timeout=3):
     """
 
     try:
+        now = datetime.datetime.now()
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
     except OSError as error:
+        msg = now.strftime("  %Y-%m-%d %H:%M:%S") + " OS error: %s" % error.strerror
+        if enable_logfile:
+            	with open(file, 'a') as writer:
+            	        writer.write(msg + "\n")
         # print(error.strerror)
+        s.close()
         return False
     else:
         s.close()
@@ -197,12 +203,12 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
 
     while True:
         # When run on cmd line, exit program via Ctrl-C.
+        # Record observed time when internet connectivity fails.
+        fail_time = datetime.datetime.now()
         if is_internet_alive():
             time.sleep(polling_freq)
         else:
-            # Record observed time when internet connectivity fails.
-            fail_time = datetime.datetime.now()
-            msg = "-------Internet Connection unavailable at : " + str(fail_time).split(".")[0]
+            msg = "Internet Connection unavailable at : " + str(fail_time).split(".")[0]
             print(msg)
             if enable_logfile:
                 with open(file, 'a') as writer:
@@ -219,7 +225,7 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
                 if counter >= 60:
                     counter = 0
                     now = datetime.datetime.now()
-                    msg = "-----------Internet Connection still unavailable at : " + str(now).split(".")[0]
+                    msg = "Internet Connection still unavailable at : " + str(now).split(".")[0]
                     print(msg)
                     if enable_logfile:
                         with open(file, 'a') as writer:
@@ -227,19 +233,19 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
 
             # Record observed time when internet connectivity restored.
             restore_time = datetime.datetime.now()
-            restore_msg = "-------Internet Connection restored at    : " + str(restore_time).split(".")[0]
+            restore_msg = "Internet Connection restored at    : " + str(restore_time).split(".")[0]
 
             # Calculate the total duration of the downtime
             downtime_duration = calc_time_diff(fail_time, restore_time)
-            duration_msg = "-------The duration of the downtime was   :             " + downtime_duration
+            duration_msg = "The duration of the downtime was   :             " + downtime_duration
 
             # Display restoration message to console and record in log file.
             print(restore_msg)
-            print(duration_msg)
+            print(duration_msg + "\n")
             if enable_logfile:
                 with open(file, 'a') as writer:
                     writer.write(restore_msg + "\n")
-                    writer.write(duration_msg + "\n")
+                    writer.write(duration_msg + "\n\n")
 
 
 

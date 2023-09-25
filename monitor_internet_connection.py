@@ -249,7 +249,14 @@ def monitor_inet_connection(enable_logfile = True, polling_freq = 1):
 if __name__ == "__main__":
     args = parse_args()
     #Pushover
-    POclient = Client("<user-key>", api_token="<api-token>")
+    try:
+        import POsettings
+        userKey=POsettings.userKey
+        apiToken=POsettings.apiToken
+    except:
+        userKey="<user-key>" #DO NOT upload your credentidals to github!
+        apitoken="<api-token>"
+    POclient = Client(userKey, api_token=apiToken)
 
     enable_logfile = not args.disable_logfile
     monitor_inet_connection(enable_logfile, args.polling_freq)
